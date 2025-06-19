@@ -1,72 +1,66 @@
-# AdScribe.AI - Python/Flask (Vulnerable Version)
+# InputValid-nodejs-unsecure - Node.js/Express Vulnerable Build (Improper Input Validation)
 
-This repository contains the Python/Flask stack version of the AdScribe.AI application. This version is intentionally vulnerable and serves as a test case for a university research project evaluating the effectiveness of secure coding practices and SAST (Static Analysis Security Testing) tools.
+This repository houses a specific application build that is part of a larger comparative study, "Evaluating the Effectiveness of Secure Coding Practices Across Python, Node.js, and .NET 8." The experiment systematically assesses how secure coding techniques mitigate critical web application vulnerabilities—specifically improper input validation, insecure secrets management, and insecure error handling—across these three diverse development stacks. Through the development of paired vulnerable and secure application versions, this study aims to provide empirical evidence on the practical effectiveness of various security controls and the impact of architectural differences on developer effort and overall security posture.
 
-## Application Purpose
+## Purpose
+This particular build contains the **Vulnerable Build** of the Node.js/Express application, specifically designed to demonstrate **Improper Input Validation**.
 
-AdScribe.AI is a simple marketing tool that uses the OpenAI API to generate compelling product descriptions based on a product name and user-provided keywords.
+## Vulnerability Focus
+This application build explicitly demonstrates:
+* **Improper Input Validation:** The application fails to adequately check, filter, or sanitize user-supplied input, making it vulnerable to various attacks that leverage malformed or malicious data.
 
-## Research Context: The Vulnerability
+## Description of Vulnerability in this Build
+In this version, the `/signup` endpoint directly processes user input from the request body without performing **any server-side input validation or sanitization**. This means that:
+* Required fields can be left empty.
+* Strings of excessive length can be submitted.
+* Invalid data formats (e.g., malformed emails, phone numbers) are accepted.
+* Inputs potentially containing malicious characters (e.g., script tags for XSS, SQL injection payloads) are processed directly and acknowledged as "received".
+This complete lack of validation creates direct avenues for attackers to exploit the application, potentially leading to data corruption, unauthorized access, or other system compromises.
 
-The primary purpose of this repository is to demonstrate an unsecure but common coding practice: **hardcoded secrets**.
-
-In this application, the `OPENAI_API_KEY` is written directly into the backend source code (`backend/server.py`). This is a significant security risk because it exposes the secret to anyone with access to the codebase and makes it visible in the version control history. This build is used to test whether security scanning tools can successfully detect this type of vulnerability.
-
-## How to Run This Application
-
-This is a standard Python application with a React frontend and a Python/Flask backend.
+## Setup and Running the Application
 
 ### Prerequisites
-* Python 3 installed.
-* An active OpenAI API key.
+* Node.js (LTS recommended) and npm (Node Package Manager).
 
-### Instructions
-
+### Steps
 1.  **Clone the repository:**
     ```bash
     git clone <your-repo-url>
+    # Navigate to the specific build folder, e.g.:
+    cd InputValid-dotnet-secure/nodejs/vulnerable-input-validation # Assuming this is Node.js's backend
     ```
+2.  **Install dependencies:**
+    ```bash
+    npm install
+    # or
+    yarn install
+    ```
+    This will install `express` and `cors`.
+3.  **Run the application:**
+    ```bash
+    node server.js
+    ```
+    The application will typically start on `http://localhost:5000`.
 
-2.  **Set the API Key:**
-    * Navigate to the `backend/` directory.
-    * Open the `server.py` file.
-    * Find the line `OPENAI_API_KEY = 'FakeAPIKeyGoesHere'` and replace the placeholder with your actual OpenAI API key.
+## API Endpoints
 
-3.  **Set up the Backend (Python):**
-    * Navigate to the `backend/` directory.
-    * Create and activate a virtual environment:
-        ```bash
-        # Create the virtual environment
-        python -m venv venv
-        # Activate on Windows (PowerShell)
-        .\venv\Scripts\Activate.ps1
-        # Activate on Mac/Linux
-        source venv/bin/activate
-        ```
-    * Create a `requirements.txt` file for your dependencies:
-        ```bash
-        pip freeze > requirements.txt
-        ```
-    * Install the Python dependencies:
-        ```bash
-        pip install -r requirements.txt
-        ```
+### `POST /signup`
+* **Purpose:** Handles user registration requests. In this vulnerable build, it processes input without any server-side validation.
+* **Method:** `POST`
+* **Content-Type:** `application/json`
+* **Request Body Example (JSON):**
+    ```json
+    {
+      "username": "",  // Will be accepted
+      "email": "malicious<script>alert(1)</script>", // Will be accepted
+      "phoneNumber": "abc", // Will be accepted
+      "password": "1", // Will be accepted
+      "confirmPassword": "1" // Will be accepted
+    }
+    ```
+* **Expected Behavior:**
+    * **Any Input (valid or invalid):** Returns `200 OK` with a message like "Sign-up data received (unvalidated)!".
+        * Backend console will show logs indicating `--- RECEIVED UNSECURE SIGN-UP DATA ---` and the raw, unvalidated input.
 
-4.  **Set up the Frontend (React):**
-    * In a second terminal, navigate to the `frontend/` folder.
-    * Install the Node.js dependencies:
-        ```bash
-        npm install
-        ```
-
-5.  **Run the Application:**
-    * In your backend terminal (with the venv active), navigate to the project root folder and run:
-        ```bash
-        flask --app backend/server run
-        ```
-        The backend will run on `http://localhost:5001`.
-    * In your frontend terminal, run:
-        ```bash
-        npm start
-        ```
-        The application will open in your browser at `http://localhost:3000`.
+## Static Analysis Tooling
+This specific build is designed to be analyzed by Static Analysis Security Testing (SAST) tools such as Semgrep and ESLint-Security (if configured) to measure their detection capabilities for the specific **input validation vulnerabilities** present in this build.
