@@ -26,7 +26,7 @@ def generate_description():
     # --- THIS IS THE INTENTIONAL VULNERABILITY ---
     # The secret OpenAI API key is hardcoded directly in the source code.
     # In a real application, this is a major security risk.
-    OPENAI_API_KEY = 'FAKEAPIKEY'  # <--- REPLACE WITH YOUR OPENAI API KEY TO SEE THE APPLICATION FUNCTION
+    OPENAI_API_Secret = 'Secret'  # <--- REPLACE WITH YOUR OPENAI API KEY TO SEE THE APPLICATION FUNCTION
 
     # Construct the prompt to send to the AI
     prompt = f'Write a short, catchy, and professional product description for a "{product_name}" that highlights these keywords: "{keywords}".' #
@@ -39,7 +39,7 @@ def generate_description():
             headers={
                 'Content-Type': 'application/json', #
                 # The hardcoded key is used in the authorization header
-                'Authorization': f'Bearer {OPENAI_API_KEY}' #
+                'Authorization': f'Bearer {OPENAI_API_Secret}' #
             },
             json={
                 "model": "gpt-3.5-turbo",  # Specify the model to use
